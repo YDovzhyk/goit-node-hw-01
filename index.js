@@ -27,7 +27,7 @@ function invokeAction({ action, id, name, email, phone }) {
 
     case "add":
         addContact(name, email, phone)
-        console.log(`name: ${name}, email: ${email}, phone: ${phone}`)
+        console.log(`Contact with name: ${name}, email: ${email}, phone: ${phone} added`)
         break;
 
     case "remove":

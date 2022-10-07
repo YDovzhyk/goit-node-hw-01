@@ -1,15 +1,9 @@
-
-const fs = require('fs').promises;
-const path = require('path');
+const { readContacts, writeContacts } = require('./help.js');
 const shortid = require('shortid');
-
-const contactsPath = path.resolve('./db/contacts.json');
 
 async function listContacts() {
     try {
-        const data = await fs.readFile(contactsPath);
-        const contactsList = JSON.parse(data);
-        console.table(contactsList);
+        readContacts().then(data => console.table(data));
     } catch (error) {
         console.log(error);
     }
@@ -17,15 +11,14 @@ async function listContacts() {
 
 async function getContactById(contactId) {
     try {
-        const data = await fs.readFile(contactsPath);
-        const contactsList = JSON.parse(data);
-
-        let targetContact = contactsList.find(items => items.id === contactId);
-        if (!targetContact) {
-            console.log('Contact not found');
-            return;
-        }
-        console.table(targetContact);
+        readContacts().then(data => {
+            let contactsData = data.find(items => items.id === contactId);
+                if (!contactsData) {
+                    console.log('Contact not found');
+                    return;
+                }
+            console.table(contactsData);
+        });
     } catch (error) {
         console.log(error);
     }
@@ -33,22 +26,12 @@ async function getContactById(contactId) {
 
 async function removeContact(contactId) {
     try {
-        const data = await fs.readFile(contactsPath);
-        const contactsList = JSON.parse(data);
-
-        let contactRemoved = contactsList.filter(items => items.id !== contactId);
-
-        if (!contactRemoved) {
-            console.log('Contact not found');
-            return;
-        }
-
-        fs.truncate(contactsPath);
-
-        fs.writeFile(contactsPath, JSON.stringify(contactRemoved))
-            console.log('Contact deleted successfully');
-            console.table(contactRemoved);
-            
+        readContacts().then(data => {
+            let contactsData = data.filter(items => items.id !== contactId);
+        
+            writeContacts(contactsData);
+            console.table(contactsData);
+        });
     } catch (error) {
         console.log(error);
     }
@@ -57,17 +40,12 @@ async function removeContact(contactId) {
 async function addContact(name, email, phone) {
     const newContact = [{"id": shortid.generate(), "name": name, "email": email,"phone": phone}];
     try {
-        const data = await fs.readFile(contactsPath);
-        const contactsList = JSON.parse(data);
+        readContacts().then(data => {
+            let contactsData = data.concat(newContact);
 
-        let addContact = contactsList.concat(newContact);
-
-        fs.truncate(contactsPath);
-
-        fs.writeFile(contactsPath, JSON.stringify(addContact));
-            console.log('Contact successfully recorded');
-            console.table(addContact);
-
+            writeContacts(contactsData);
+            console.table(contactsData);
+        });
     } catch (error) {
         console.log(error);
     }
